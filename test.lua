@@ -1,12 +1,10 @@
-function GetCurrentLuaFile()
-	    local source = debug.getinfo(2, "S").source
-	        if source:sub(1,1) == "@" then
-			        return source:sub(2)
-				    else
-					            error("Caller was not defined in a file", 2)
-						        end
-						end
-print(GetCurrentLuaFile())
+--
+-- Copyright (c) 2021 lalawue
+--
+-- This library is free software; you can redistribute it and/or modify it
+-- under the terms of the MIT license. See LICENSE for details.
+--
+
 local Tags = require("html-tags")
 
 local function htmlSpec()

@@ -11,14 +11,16 @@ local fConcat = table.concat
 local ipairs = ipairs
 local pairs = pairs
 local setfenv = setfenv
-local getfenv = getfenv
 local xpcall = xpcall
 local loadstring = loadstring
 local load = load
 local require = require
 local loadfile = loadfile
+local setmetatable = setmetatable
+local _getupvalue = debug.getupvalue
+local _setupvalue = debug.setupvalue
 
-local source_page_env = {}
+local SOURCE_PAGE_ENV = {}
 
 -- execute function or table, output string
 local function fExec(value, stag, etag)
@@ -50,18 +52,18 @@ end
 
 -- one tag with exclamation before
 local function fExclam(tag, value)
-    return "<!" .. tag .. " " .. fExec(value, nil, ">\n")
+    return "<!" .. tag .. fExec(value, ' ', ">\n")
 end
 
 -- one tag with dash behide
 local function fOne(tag, value)
-    return "<" .. tag .. fExec(value, nil, "/>\n")
+    return "<" .. tag .. fExec(value, ' ', "/>\n")
 end
 
 -- two tag surround
 local function fTwo(tag, value)
-    local etag = (fType(value) == "table" and #value > 2) and ">\n" or ">"
-    return "<" .. tag .. fExec(value, etag) .. "</" .. tag .. ">\n"
+    local stag = (fType(value) == "table" and #value > 2) and ">\n" or ">"
+    return "<" .. tag .. fExec(value, stag) .. "</" .. tag .. ">\n"
 end
 
 -- trace back function
@@ -72,18 +74,20 @@ local function fTraceBack(msg)
     print("----------------------------------------")
 end
 
--- set env to function
-local function fSetFuncEnv(f, env)
-    if _VERSION == "Lua 5.1" then
-        return setfenv(f, env)
+-- two version setfenv
+local fSetFuncEnv
+if _VERSION == "Lua 5.1" then
+    fSetFuncEnv = setfenv
+else
+    fSetFuncEnv = function(f, env)
+        local i = 1
+        repeat
+            local n, v = _getupvalue(f, i)
+            if n == "_ENV" then
+                return _setupvalue(f, i, env)
+            end
+        until n == nil
     end
-    local i = 1
-    repeat
-        local n, v = debug.getupvalue(f, i)
-        if n == "_ENV" then
-            return debug.setupvalue(f, i, env)
-        end
-    until n == nil
 end
 
 -- model default tags
@@ -96,7 +100,7 @@ local default_tags = {
         if not f then
             return "<!-- failed to import: " .. fString(err) .. " -->\n"
         end
-        fSetFuncEnv(f, source_page_env)
+        fSetFuncEnv(f, SOURCE_PAGE_ENV)
         local st, t = xpcall(f, fTraceBack)
         if not st then
             return "<!-- failed to import: " .. value .. ", error: " .. fString(t) .. " -->\n"
@@ -247,7 +251,8 @@ for k, v in pairs(h5_tags) do
 end
 
 return {
-    -- renter function or string with page_env, return string or false with error message
+    -- render value with pre-defined page_env, value should be table or string
+    -- return content string or false with error message
     render = function(value, page_env)
         local func, emsg
 
@@ -262,12 +267,12 @@ return {
         if fType(func) == "function" then
             page_env = (fType(page_env) == "table") and page_env or {}
             setmetatable(page_env, {__index = default_tags})
-            source_page_env = page_env
+            SOURCE_PAGE_ENV = page_env
             fSetFuncEnv(func, page_env)
             local st, t = xpcall(func, fTraceBack)
             if st then
                 t = fExec(t)
-                source_page_env = nil
+                SOURCE_PAGE_ENV = nil
                 return t
             end
             emsg = t
