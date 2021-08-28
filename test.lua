@@ -15,7 +15,7 @@ local function htmlSpec()
             h1 { title_name },
             br,
             h2 "world",
-            raw "<!-- raw string -->\n",
+            { "<!-- raw line one -->\n", "<!-- raw line two -->\n" },
             h3 {
                 { class="center" },
                 "morning",
@@ -24,6 +24,7 @@ local function htmlSpec()
                 { class="center mt-5 ml-3" },
                 h2 "title",
                 p { "result is: " .. calc_abc(2, 5, 10) }, -- 40 = 2 * (5 + 10 + 5)
+                p { escape "<b>escape content</b> " }
             }
         }
     }
@@ -31,13 +32,13 @@ end
 
 local htmlString = [[
     return {
-        doctype { "html" },
+        doctype "html",
         html {
             import "specs/head_spec.lua",
             h1 { title_name },
             br,
             h2 { "world" },
-            raw { "<!-- raw line one -->\n", "<!-- raw line two -->\n" },
+            "<!-- only raw line one -->\n",
             h3 {
                 { class="center" },
                 { "another ", "morning" },
@@ -47,7 +48,7 @@ local htmlString = [[
                 h2 "title",
                 p {
                     { result = calc_abc(3, 10, 15) },  -- 90 = 3 * (10 + 15 + 5)
-                    "see attribute result",
+                    "see attribute result",                    
                 }
             }            
         }

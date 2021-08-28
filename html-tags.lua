@@ -22,6 +22,18 @@ local _setupvalue = debug.setupvalue
 
 local SOURCE_PAGE_ENV = {}
 
+local html_escape_entities = {
+    ["&"] = "&amp;",
+    ["<"] = "&lt;",
+    [">"] = "&gt;",
+    ['"'] = "&quot;",
+    ["'"] = "&#039;"
+}
+
+local function fEscape(str)
+    return (str:gsub([=[["><'&]]=], html_escape_entities))
+end
+
 -- execute function or table, output string
 local function fExec(value, stag, etag)
     stag = stag or ""
@@ -30,7 +42,7 @@ local function fExec(value, stag, etag)
         return fExec(value())
     end
     if fType(value) ~= "table" then
-        return stag .. fString(value and value or "") .. etag
+        return stag .. fString(value or "") .. etag
     end
     local content = {}
     for i, t in ipairs(value) do
@@ -50,19 +62,9 @@ local function fExec(value, stag, etag)
     return fConcat(content, "") .. etag
 end
 
--- raw value
-local function fRaw(value)
-    return fExec(value)
-end
-
--- one tag with exclamation before
-local function fExclam(tag, value)
-    return "<!" .. tag .. fExec(value, ' ', ">\n")
-end
-
 -- one tag with dash behide
 local function fOne(tag, value)
-    return "<" .. tag .. fExec(value, ' ', "/>\n")
+    return "<" .. tag .. fExec(value, " ", "/>\n")
 end
 
 -- two tag surround
@@ -113,10 +115,10 @@ local default_tags = {
         return fExec(t)
     end,
     doctype = function(value)
-        return fExclam("DOCTYPE", value)
+        return "<!DOCTYPE " .. fExec(value) ..">\n"
     end,
-    raw = function(value)
-        return fRaw(value)
+    escape = function(value)
+        return fEscape(value)
     end
 }
 setmetatable(default_tags, {__index = _G})
