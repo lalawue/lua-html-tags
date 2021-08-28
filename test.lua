@@ -14,7 +14,8 @@ local function htmlSpec()
             import "specs/head_spec.lua",
             h1 { title_name },
             br,
-            h2 { "world" },
+            h2 "world",
+            raw "<!-- raw string -->\n",
             h3 {
                 { class="center" },
                 "morning",
@@ -36,14 +37,16 @@ local htmlString = [[
             h1 { title_name },
             br,
             h2 { "world" },
+            raw { "<!-- raw line one -->\n", "<!-- raw line two -->\n" },
             h3 {
                 { class="center" },
-                "morning",
+                { "another ", "morning" },
             },
             div {
                 { class="center mt-5 ml-3" },
                 h2 "title",
-                p { { result = calc_abc(3, 10, 15) },  -- 90 = 3 * (10 + 15 + 5)
+                p {
+                    { result = calc_abc(3, 10, 15) },  -- 90 = 3 * (10 + 15 + 5)
                     "see attribute result",
                 }
             }            

@@ -50,6 +50,11 @@ local function fExec(value, stag, etag)
     return fConcat(content, "") .. etag
 end
 
+-- raw value
+local function fRaw(value)
+    return fExec(value)
+end
+
 -- one tag with exclamation before
 local function fExclam(tag, value)
     return "<!" .. tag .. fExec(value, ' ', ">\n")
@@ -106,15 +111,18 @@ local default_tags = {
             return "<!-- failed to import: " .. value .. ", error: " .. fString(t) .. " -->\n"
         end
         return fExec(t)
+    end,
+    doctype = function(value)
+        return fExclam("DOCTYPE", value)
+    end,
+    raw = function(value)
+        return fRaw(value)
     end
 }
 setmetatable(default_tags, {__index = _G})
 
 -- tags definition
 local h5_tags = {
-    doctype = 0,
-    --[[        
-    ]]
     area = 1,
     base = 1,
     br = 1,
@@ -239,13 +247,9 @@ for k, v in pairs(h5_tags) do
         default_tags[k] = function(value)
             return fTwo(k, value)
         end
-    elseif v == 1 then
-        default_tags[k] = function(value)
-            return fOne(k, {value})
-        end
     else
         default_tags[k] = function(value)
-            return fExclam(k:upper(), value)
+            return fOne(k, {value})
         end
     end
 end
