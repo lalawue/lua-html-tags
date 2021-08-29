@@ -31,7 +31,7 @@ local html_escape_entities = {
 }
 
 local function fEscape(str)
-    return (str:gsub([=[["><'&]]=], html_escape_entities))
+    return str:gsub([=[["><'&]]=], html_escape_entities)
 end
 
 -- execute function or table, output string
@@ -280,6 +280,8 @@ return {
                 t = fExec(t)
                 SOURCE_PAGE_ENV = nil
                 return t
+            else
+                SOURCE_PAGE_ENV = nil
             end
             emsg = t
         else
