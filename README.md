@@ -1,7 +1,7 @@
 
 # About
 
-[lua-html-tags](https://github.com/lalawue/lua-html-tags.lua) was a Lua base DSL for writing HTML documents.
+[lua-html-tags](https://github.com/lalawue/lua-html-tags.git) was a Lua base DSL for writing HTML documents.
 
 you can write HTML as write Lua code, and more simplify, you can add
 your own tags / functions or variables into the source, make it really flexible for customize.
