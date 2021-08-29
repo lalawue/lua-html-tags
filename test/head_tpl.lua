@@ -1,7 +1,7 @@
 return {
 	head {
 		title { title_name },		
-		import "specs/meta_spec.lua",
+		include "test/meta_tpl.lua",
 		link { rel="1st import level" },
 	}
 }

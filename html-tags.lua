@@ -99,9 +99,9 @@ end
 
 -- model default tags
 local default_tags = {
-    import = function(value)
+    include = function(value)
         if fType(value) ~= "string" then
-            return "<!-- only support import string path -->"
+            return "<!-- only support include string path -->"
         end
         local f, err = loadfile(value)
         if not f then
@@ -110,7 +110,7 @@ local default_tags = {
         fSetFuncEnv(f, SOURCE_PAGE_ENV)
         local st, t = xpcall(f, fTraceBack)
         if not st then
-            return "<!-- failed to import: " .. value .. ", error: " .. fString(t) .. " -->\n"
+            return "<!-- failed to include: " .. value .. ", error: " .. fString(t) .. " -->\n"
         end
         return fExec(t)
     end,

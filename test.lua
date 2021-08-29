@@ -11,7 +11,7 @@ local function htmlSpec()
     return {
         doctype { "html" },
         html {
-            import "specs/head_spec.lua",
+            include "test/head_tpl.lua",
             h1 { title_name },
             br,
             h2 "world",
@@ -34,7 +34,7 @@ local htmlString = [[
     return {
         doctype "html",
         html {
-            import "specs/head_spec.lua",
+            include "test/head_tpl.lua",
             h1 { title_name },
             br,
             h2 { "world" },
