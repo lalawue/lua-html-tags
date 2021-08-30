@@ -8,6 +8,16 @@ your own tags / functions or variables into the source, make it really flexible 
 
 besides, all these tags / functions or variables, will not affect current function `_ENV` or `_G`, it will use its own function `_ENV` or `setfenv` all the time, even when `include` other source.
 
+# Installl
+
+through [LuaRocks](https://luarocks.org/)
+
+```sh
+$ luarocks install html-tags
+```
+
+or just put html-tags.lua into your project.
+
 # Features
 
 - pre defined most HTML 5 tags, and very easy to add your owns
