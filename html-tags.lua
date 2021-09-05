@@ -34,6 +34,8 @@ local function fEscape(str)
     return str:gsub([=[["><'&]]=], html_escape_entities)
 end
 
+local tmp_content = {}
+
 -- execute function or table, output string
 local function fExec(value, stag, etag)
     stag = stag or ""
@@ -277,9 +279,11 @@ return {
             fSetFuncEnv(func, page_env)
             local st, t = xpcall(func, fTraceBack)
             if st then
-                t = fExec(t)
+                st, t = xpcall(fExec, fTraceBack, t)
                 SOURCE_PAGE_ENV = nil
-                return t
+                if st then
+                    return t
+                end
             else
                 SOURCE_PAGE_ENV = nil
             end
