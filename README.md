@@ -163,11 +163,40 @@ will output
 </html>
 ```
 
+## Nested Attributes
+
+you can put tag attributes together, and very easy to conjunct key / value pairs.
+
+```lua
+local function htmlNestedAttributes()
+    return {
+        doctype "html",
+        html {
+            div {{"[class=center mt-3][class=ml-2]"}, -- same key will join
+                a {{"[href=http://baidu.com][target=_blank]"},
+                    "ClickMe"
+                }
+            }
+        }
+    }
+end
+```
+
+will output
+
+```
+<!DOCTYPE html>
+<html><div class="center mt-3 ml-2"><a href="http://baidu.com" target="_blank">ClickMe</a>
+</div>
+</html>
+```
 
 # Details
 
 - only render function or string for setup _ENV or setfenv
 - outer level function or string should return `table` as a block description
 - every HTML 5 tag was a function, in Lua, you can call one `table` or `string` without paired parenthesis
-- if tag's parameter and its first element is a `table`, will treat the first item as tag's attributes key / value pairs.
-- it will evalates every function, and combine every table into a whole page string
+- if tag's parameter and its first element is a `table`
+  - if element table index 1 has string value, `gmatch` it as '[key1=value1]' attributes pairs
+  - otherwise, `pair` this element table as tag's attributes key / value pairs
+- it will evaluate every function, and combine every table into a whole page string

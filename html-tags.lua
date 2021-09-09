@@ -17,6 +17,7 @@ local load = load
 local require = require
 local loadfile = loadfile
 local setmetatable = setmetatable
+local gmatch = string.gmatch
 local _getupvalue = debug.getupvalue
 local _setupvalue = debug.setupvalue
 
@@ -34,7 +35,7 @@ local function fEscape(str)
     return str:gsub([=[["><'&]]=], html_escape_entities)
 end
 
-local tmp_content = {}
+local tmp_attrs = {}
 
 -- execute function or table, output string
 local function fExec(value, atag)
@@ -49,8 +50,18 @@ local function fExec(value, atag)
     for i, t in ipairs(value) do
         if i == 1 then
             if fType(t) == "table" then
-                for k, v in pairs(t) do
-                    content[#content + 1] = " " .. k .. '="' .. v .. '"'
+                if fType(t[1]) == "string" then
+                    for k, v in gmatch(t[1], "%[(.-)=(.-)%]") do
+                        tmp_attrs[k] = (tmp_attrs[k] and (tmp_attrs[k] .. " ") or "") .. v
+                    end
+                    for k, v in pairs(tmp_attrs) do
+                        content[#content + 1] = " " .. k .. '="' .. v .. '"'
+                        tmp_attrs[k] = nil
+                    end
+                else
+                    for k, v in pairs(t) do
+                        content[#content + 1] = " " .. k .. '="' .. v .. '"'
+                    end
                 end
                 content[#content + 1] = atag
             else
