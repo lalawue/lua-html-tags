@@ -27,6 +27,10 @@ or just put html-tags.lua into your project.
 
 # Usage
 
+## Basic
+
+render function / string with pre-defined function or variable
+
 ```lua
 local Tags = require("html-tags")
 
@@ -103,6 +107,62 @@ will output
 <p>result: 8</p>
 </html>
 ```
+
+## Define & Register Tags
+
+- define tag like other HTML one
+- register to default tags
+
+```lua
+-- <!-- VALUE --!>
+local tag_comment = function(value)
+    return '<!--' .. Tags.tagExec(value, ' ') .. '--!>\n'
+end
+
+-- <fast-button ATTRIBUTES> CONTENT </fast-button>
+local fast_button = function(value)
+    return '<fast-button' .. Tags.tagExec(value, '>') .. "</fast-button>\n"
+end
+
+Tags.tagRegister({
+    ["comment"] = tag_comment,
+    ["fast_button"] = fast_button
+})
+
+local function htmlPage()
+    return {
+        html {
+            doctype "html",
+            comment "1st comment",
+            comment { "2nd ", "3rd" },
+            comment {
+                div "empty box"
+            },
+            fast_button "Click Me",
+            fast_button {{class="button-primary"},
+                "Submit"
+            }
+        }
+    }
+end
+
+print(Tags.render(htmlPage))
+```
+
+will output
+
+```
+<html>
+<!DOCTYPE html>
+<!-- 1st comment--!>
+<!-- 2nd 3rd--!>
+<!-- <div>empty box</div>
+--!>
+<fast-button>Click Me</fast-button>
+<fast-button class="button-primary">Submit</fast-button>
+</html>
+```
+
 
 # Details
 

@@ -37,14 +37,13 @@ end
 local tmp_content = {}
 
 -- execute function or table, output string
-local function fExec(value, stag, etag)
-    stag = stag or ""
-    etag = etag or ""
+local function fExec(value, atag)
+    atag = atag or ""
     if fType(value) == "function" then
         return fExec(value())
     end
     if fType(value) ~= "table" then
-        return stag .. fString(value or "") .. etag
+        return atag .. fString(value or "")
     end
     local content = {}
     for i, t in ipairs(value) do
@@ -53,26 +52,26 @@ local function fExec(value, stag, etag)
                 for k, v in pairs(t) do
                     content[#content + 1] = " " .. k .. '="' .. v .. '"'
                 end
-                content[#content + 1] = stag
+                content[#content + 1] = atag
             else
-                content[#content + 1] = stag .. fExec(t)
+                content[#content + 1] = atag .. fExec(t)
             end
         else
             content[#content + 1] = fExec(t)
         end
     end
-    return fConcat(content, "") .. etag
+    return fConcat(content, "")
 end
 
 -- one tag with dash behide
 local function fOne(tag, value)
-    return "<" .. tag .. fExec(value, " ", "/>\n")
+    return "<" .. tag .. fExec(value, " ") .. "/>\n"
 end
 
 -- two tag surround
 local function fTwo(tag, value)
-    local stag = (fType(value) == "table" and #value > 2) and ">\n" or ">"
-    return "<" .. tag .. fExec(value, stag) .. "</" .. tag .. ">\n"
+    local atag = (fType(value) == "table" and #value > 2) and ">\n" or ">"
+    return "<" .. tag .. fExec(value, atag) .. "</" .. tag .. ">\n"
 end
 
 -- trace back function
@@ -292,5 +291,14 @@ return {
             emsg = "invalid param type, only support table or string: " .. fType(value)
         end
         return false, ("failed to render: " .. fString(emsg))
-    end
+    end,
+    -- (value, atag) => <Tag Attributes .. atag .. Content .. <Tag>
+    -- atag will be appended after attributes, before content
+    tagExec = fExec,
+    -- register tag in default table
+    tagRegister = function(tbl)
+        for k, v in pairs(tbl) do
+            default_tags[k] = v
+        end
+    end,
 }

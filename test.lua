@@ -24,10 +24,10 @@ local function htmlSpec()
             },
             div {
                 h2 "title",
-                p { "result is: " .. calc_abc(2, 5, 10) }, -- 40 = 2 * (5 + 10 + 5)
+                p { "result is: " .. calcABC(2, 5, 10) }, -- 40 = 2 * (5 + 10 + 5)
                 p { escape "<b>escape content</b> " },
             },
-            tag_result "result"
+            tagResult "result"
         }
     }
 end
@@ -50,28 +50,28 @@ local htmlString = [[
             div {
                 h2 "title",
                 p {
-                    { result = calc_abc(3, 10, 15) },  -- 90 = 3 * (10 + 15 + 5)
+                    { result = calcABC(3, 10, 15) },  -- 90 = 3 * (10 + 15 + 5)
                     "see attribute result",                    
                 },
             },
-            tag_result "result"
+            tagResult "result"
         }
     }
 ]]
 
 local outer_value = 5
 
-local function calc_bc(b, c)
+local function calcBC(b, c)
     return b + c + outer_value
 end
 
 local page_env = {
     title_name = " HTML-TAGS ",
-    calc_abc = function(a, b, c)
-        return tostring(a * calc_bc(b, c))
+    calcABC = function(a, b, c)
+        return tostring(a * calcBC(b, c))
     end,
-    tag_result = function(a)
-        return "<p>" .. a .. ': ' .. tostring(calc_bc(1, 2)) .. "</p>\n"
+    tagResult = function(a)
+        return "<p>" .. a .. ': ' .. tostring(calcBC(1, 2)) .. "</p>\n"
     end,
 }
 
@@ -80,3 +80,40 @@ print(Tags.render(htmlSpec, page_env))
 
 print("\n---- Loading String ----")
 print(Tags.render(htmlString, page_env))
+
+print("\n---- Register Tags ----")
+
+-- <!-- VALUE -->
+local tag_comment = function(value)
+    return '<!--' .. Tags.tagExec(value, ' ') .. '--!>\n'
+end
+
+-- <fast-button ATTRIBUTES> CONTENT </fast-button>
+local fast_button = function(value)
+    return '<fast-button' .. Tags.tagExec(value, '>') .. "</fast-button>\n"
+end
+
+Tags.tagRegister({
+    ["comment"] = tag_comment,
+    ["fast_button"] = fast_button
+})
+
+local function htmlPage()
+    return {
+        html {
+            doctype "html",
+            comment "1st comment",
+            comment { "2nd ", "3rd" },
+            comment {
+                div "empty box"
+            },
+            fast_button "Click Me",
+            fast_button {{class="button-primary"},
+                "Submit"
+            }
+        }
+    }
+end
+
+print(Tags.render(htmlPage))
+
