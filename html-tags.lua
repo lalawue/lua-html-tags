@@ -76,13 +76,13 @@ end
 
 -- one tag with dash behide
 local function fOne(tag, value)
-    return "<" .. tag .. fExec(value, " ") .. "/>\n"
+    return "<" .. tag .. fExec(value, " ") .. "/>"
 end
 
 -- two tag surround
 local function fTwo(tag, value)
-    local atag = (fType(value) == "table" and #value > 2) and ">\n" or ">"
-    return "<" .. tag .. fExec(value, atag) .. "</" .. tag .. ">\n"
+    local atag = (fType(value) == "table" and #value > 2) and ">" or ">"
+    return "<" .. tag .. fExec(value, atag) .. "</" .. tag .. ">"
 end
 
 -- trace back function
